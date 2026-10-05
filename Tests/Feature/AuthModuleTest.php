@@ -6,6 +6,7 @@ namespace App\Modules\Auth\Tests\Feature;
 
 use App\Modules\Core\Tests\TestCase;
 use App\Modules\Core\User;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Tymon\JWTAuth\Facades\JWTAuth;
@@ -78,11 +79,15 @@ class AuthModuleTest extends TestCase
 
     public function testAuthLogout(): void
     {
+        Config::set('jwt.secret', 'test-suite-jwt-secret');
+
         $user = factory(User::class)->create();
 
-        $token = JWTAuth::fromUser($user);
+        $token = auth('api')->login($user);
 
-        $this->get($this->authRoute . "logout?token={$token}")->assertStatus(200);
+        $this->withHeader('Authorization', "Bearer {$token}")
+            ->getJson($this->authRoute . 'logout')
+            ->assertStatus(200);
 
         $this->expectException(TokenBlacklistedException::class);
 
