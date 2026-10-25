@@ -79,7 +79,7 @@ class AuthModuleTest extends TestCase
 
     public function testAuthLogout(): void
     {
-        Config::set('jwt.secret', 'test-suite-jwt-secret');
+        Config::set('jwt.secret', str_repeat('test-only-', 8));
 
         $user = factory(User::class)->create();
 
